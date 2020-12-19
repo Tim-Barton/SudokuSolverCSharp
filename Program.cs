@@ -108,7 +108,7 @@ namespace SudokuSolver
         public void Solve()
         {
             WorkItem workItem;
-            while (workQueue.TryDequeue(workItem))
+            while (workQueue.TryDequeue(out workItem))
             {
                 if ( ! IsSolved() )
                 {
