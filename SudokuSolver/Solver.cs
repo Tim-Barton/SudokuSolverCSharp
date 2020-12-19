@@ -5,7 +5,7 @@ using Microsoft.VisualBasic.FileIO;
 
 namespace SudokuSolver
 {
-    class Solver
+    public class Solver
     {
         GridSpace[,] grid = new GridSpace[9, 9];
 
@@ -23,7 +23,7 @@ namespace SudokuSolver
             }
         }
 
-        private void SetValue(int row, int column, int value)
+        public void SetValue(int row, int column, int value)
         {
             if (row < 9 && column < 9)
             {
@@ -32,6 +32,25 @@ namespace SudokuSolver
             }
 
         }
+
+        public int GetValue(int row, int column)
+        {
+            if (row < 9 && column < 9)
+            {
+                return grid[row, column].value;
+            }
+            return 0;
+        }
+
+        public int[] GetOptions(int row, int column)
+        {
+            if (row< 9 && column< 9)
+            {
+                return grid[row, column].options;
+            }
+            return new int[]{ };
+        }
+
 
         public void PrintOutput()
         {
@@ -59,6 +78,44 @@ namespace SudokuSolver
             return true;
         }
 
+        public Queue<WorkItem> HandleWorkItem(WorkItem workItem)
+        {
+            Queue<WorkItem> newItems = new Queue<WorkItem>();
+            //clear the row
+            for (int column = 0; column < 9; column++)
+            {
+                if (grid[workItem.Row, column].DiscardOption(workItem.Value))
+                {
+                    newItems.Enqueue(new WorkItem(workItem.Row, column, grid[workItem.Row, column].value));
+                }
+            }
+            //clear the column
+            for (int row = 0; row < 9; row++)
+            {
+                if (grid[row, workItem.Column].DiscardOption(workItem.Value))
+                {
+                    newItems.Enqueue(new WorkItem(row, workItem.Column, grid[row, workItem.Column].value));
+                }
+            }
+            int x = workItem.Column / 3;
+            int y = workItem.Row / 3;
+            //clear the square
+            for (int row = y * 3; row < (y * 3) + 3; row++)
+            {
+                for (int column = x * 3; column < (x * 3) + 3; column++)
+                {
+                    if (grid[row, column].DiscardOption(workItem.Value))
+                    {
+                        newItems.Enqueue(new WorkItem(row, column, grid[row, column].value));
+                    }
+                }
+
+            }
+
+
+            return newItems;
+        }
+
         public void Solve()
         {
             WorkItem workItem;
@@ -66,38 +123,14 @@ namespace SudokuSolver
             {
                 if (!IsSolved())
                 {
-                    //clear the row
-                    for (int column = 0; column < 9; column++)
+                    Queue<WorkItem> newItems = HandleWorkItem(workItem);
+                    foreach(WorkItem item in newItems)
                     {
-                        if (grid[workItem.Row, column].DiscardOption(workItem.Value))
-                        {
-                            workQueue.Enqueue(new WorkItem(workItem.Row, column, workItem.Value));
-                        }
-                    }
-                    //clear the column
-                    for (int row = 0; row < 9; row++)
-                    {
-                        if (grid[row, workItem.Column].DiscardOption(workItem.Value))
-                        {
-                            workQueue.Enqueue(new WorkItem(row, workItem.Column, workItem.Value));
-                        }
-                    }
-                    int x = workItem.Column / 3;
-                    int y = workItem.Row / 3;
-                    //clear the square
-                    for (int row = y * 3; row < (y * 3) + 3; row++)
-                    {
-                        for (int column = x * 3; column < (x * 3) + 3; column++)
-                        {
-                            if (grid[row, column].DiscardOption(workItem.Value))
-                            {
-                                workQueue.Enqueue(new WorkItem(row, column, workItem.Value));
-                            }
-                        }
-
+                        workQueue.Enqueue(item);
                     }
                 }
                 PrintOutput();
+                Console.WriteLine("----------------");
             }
         }
 
