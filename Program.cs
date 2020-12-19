@@ -133,7 +133,10 @@ namespace SudokuSolver
                     int j = 0;
                     foreach (string field in fields)
                     {
-                        solver.SetValue(i,j, int.Parse(field));
+                        if (! String.IsNullOrEmpty(field))
+                        {
+                            solver.SetValue(i, j, int.Parse(field));
+                        }
                         j++;
                     }
                     i++;
