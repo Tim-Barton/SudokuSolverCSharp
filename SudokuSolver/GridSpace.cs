@@ -7,7 +7,7 @@ namespace SudokuSolver
 {
     class GridSpace
     {
-        int[] options = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+        public int[] options = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
         public int value { get; set; } = 0;
 
         public GridSpace() { }
@@ -34,6 +34,18 @@ namespace SudokuSolver
         public bool HasValue()
         {
             return value > 0;
+        }
+
+        public string ToString()
+        {
+            if (HasValue())
+            {
+                return value.ToString();
+            }
+            else
+            {
+                return options.ToString();
+            }
         }
     }
 }

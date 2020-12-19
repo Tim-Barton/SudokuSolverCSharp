@@ -39,7 +39,7 @@ namespace SudokuSolver
             {
                 for (int j = 0; j < 9; j++)
                 {
-                    Console.Write(grid[i, j].value + ",");
+                    Console.Write(grid[i, j].ToString() + ",");
                 }
                 Console.WriteLine();
             }
@@ -97,7 +97,7 @@ namespace SudokuSolver
 
                     }
                 }
-
+                PrintOutput();
             }
         }
 
