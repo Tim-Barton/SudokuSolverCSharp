@@ -9,14 +9,9 @@ namespace SudokuSolver
     class GridSpace
     {
         int[] options = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
-        int value = 0;
+        public int value { get; set; } = 0;
 
         public GridSpace() { }
-
-        public void SetValue(int value)
-        {
-            this.value = value;
-        }
 
         public bool DiscardOption(int option)
         {
@@ -31,7 +26,7 @@ namespace SudokuSolver
             //if we've gotten to only a single possibility, set our value and notify that we've been solved
             if (options.Length == 1)
             {
-                SetValue(options[0]);
+                value = options[0];
                 return true;
             }
             return false;
@@ -78,10 +73,23 @@ namespace SudokuSolver
         {
             if( row < 9 && column < 9)
             {
-                grid[row, column].SetValue(value);
+                grid[row, column].value = value;
                 workQueue.Enqueue(new WorkItem(row, column, value));
             }
             
+        }
+
+        public void PrintOutput()
+        {
+            for (int i = 0; i < 9; i++)
+            {
+                for (int j = 0; j < 9; j++)
+                {
+                    Console.Write(grid[i, j].value + ",");
+                }
+                Console.WriteLine();
+            }
+
         }
 
 
@@ -97,24 +105,43 @@ namespace SudokuSolver
             return true;
         }
 
-        private void Solve()
+        public void Solve()
         {
-            foreach (WorkItem workItem in workQueue)
+            WorkItem workItem;
+            while (workQueue.TryDequeue(workItem))
             {
-                if( ! IsSolved() )
+                if ( ! IsSolved() )
                 {
                     //clear the row
                     for( int column = 0; column < 9; column++)
                     {
-                        grid[workItem.Row, column].DiscardOption(workItem.Value);
+                        if( grid[workItem.Row, column].DiscardOption(workItem.Value) )
+                        {
+                            workQueue.Enqueue(new WorkItem(workItem.Row, column, workItem.Value));
+                        }
                     }
                     //clear the column
                     for( int row = 0; row < 9; row++)
                     {
-                        grid[row, workItem.Column].DiscardOption(workItem.Value);
+                        if ( grid[row, workItem.Column].DiscardOption(workItem.Value) )
+                        {
+                            workQueue.Enqueue(new WorkItem(row, workItem.Column, workItem.Value));
+                        }
                     }
+                    int x = workItem.Column / 3;
+                    int y = workItem.Row / 3;
                     //clear the square
-                    //tbc
+                    for( int row = y*3; row < (y*3)+3; row++)
+                    {
+                        for( int column = x*3; column < (x*3)+3; column++)
+                        {
+                            if( grid[row, column].DiscardOption(workItem.Value) )
+                            {
+                                workQueue.Enqueue(new WorkItem(row, column, workItem.Value));
+                            }
+                        }
+
+                    }
                 }
 
             }
@@ -140,7 +167,6 @@ namespace SudokuSolver
                         j++;
                     }
                     i++;
-                    Console.WriteLine("line!");
                 }
             }
             return solver;
@@ -155,6 +181,8 @@ namespace SudokuSolver
             Console.WriteLine("Starting Sodoku Solver");
             string demoFile = @"C:\Users\TimBa\Programming\repos\SudokuSolverCSharp\demo.csv";
             SudokuSolver solver = SudokuSolver.ParseFromFile(demoFile);
+            solver.Solve();
+            solver.PrintOutput();
         }
     }
 }
