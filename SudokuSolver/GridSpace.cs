@@ -36,7 +36,7 @@ namespace SudokuSolver
             return value > 0;
         }
 
-        public string ToString()
+        override public string ToString()
         {
             if (HasValue())
             {
@@ -44,7 +44,7 @@ namespace SudokuSolver
             }
             else
             {
-                return options.ToString();
+                return "[" + string.Join(",", options.Select(x => x.ToString()).ToArray()) + "]" ;
             }
         }
     }
